@@ -2,6 +2,8 @@
 #define VECTOR_HPP
 
 #include <memory>
+#include <stdexcept>
+#include "type_traits.hpp"
 
 namespace ft
 {
@@ -23,6 +25,8 @@ namespace ft
             typedef std::ptrdiff_t													difference_type;
             // an unsigned integral type that can represent any non-negative value of difference_type
             typedef std::size_t														size_t;
+            // 위 두개 타입 바꿀 수 있는지 확인하기
+
 
         protected:
             allocator_type  _alloc;
@@ -43,16 +47,24 @@ namespace ft
                 this->_end = this->_start;
                 this->_end_capacity = this->_start + n;
                 while (n--)
-                    this->_alloc.construct(this->end++, val);
+                    this->_alloc.construct(this->_end++, val);
             }
 
             // (3) range constructor
             // Constructs a container with as many elements as the range [first,last), with each element constructed from its corresponding element in that range, in the same order.
-            // enable_if는 위의 생성자와 구별하기 위해 작성
+            // enable_if는 위의 생성자의 n이 size_type이기 때문에 int인자의 경우 캐스팅이 일어나야하기 때문에 아래의 생성자가 불러짐 이를 막기 위해 (자세한 내용은 README)
             template <class InputIterator>         
-            vector (InputIterator first, InputIterator last, const allocator_type& alloc = allocator_type())
+            vector (InputIterator first, InputIterator last, const allocator_type& alloc = allocator_type(), 
+                        typename ft::enable_if<!ft::is_integral<InputIterator>::value>::type* = 0): _alloc(alloc)
             {
-                
+                if (&(*first) > &(*last))
+                    throw std::length_error("vector");
+                size_t n = ft::difference(first, last);
+                this->_start = this->_alloc.allocate(n);
+                this->_end = this->_start;
+                this->_end_capacity = this->_start + n;
+                while (n--)
+                    this->_alloc.construct(this->_end, *first++);
             }
 
             // (4) copy constructor
