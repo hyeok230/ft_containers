@@ -172,6 +172,37 @@ namespace ft
                     this->_alloc.deallocate(pre_start, pre_capacity);
                 }
             }
+
+            // ===========================================Element access===========================================
+            
+            // Returns a reference to the element at position n in the vector container.
+            reference operator[] (size_type n) { return *(this->begin() + n); }
+            const_reference operator[] (size_type n) const { return *(this->begin() + n); }
+
+            // Returns a reference to the element at position n in the vector.
+            // The function automatically checks whether n is within the bounds of valid elements in the vector, throwing an out_of_range exception if it is not.
+            reference at (size_type n)
+            {
+                if (n >= this->size())
+                    throw std::out_of_range("vector::at");
+                return (*this)[n];
+            }
+            const_reference at (size_type n) const
+            {
+                if (n >= this->size())
+                    throw std::out_of_range("vector::at");
+                return (*this)[n];
+            }
+
+            // Returns a reference to the first element in the vector.
+            reference front() { return *begin(); }
+            const_reference front() const { return *bgine(); }
+
+            // Returns a reference to the last element in the vector.
+            reference back() { return *(end()- 1); }
+            const_reference back() const { return *(end()- 1); }
+
+            
     };
     
 
