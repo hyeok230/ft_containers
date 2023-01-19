@@ -79,7 +79,52 @@ namespace ft
                 while (n--)
                     this->_alloc.construct(this->_end++, *x_start++);
             }
+
+            // This destroys all container elements, and deallocates all the storage capacity allocated 
+            // by the vector using its allocator.
+            ~vector()
+            {
+                this->clear();
+                this->_alloc.deallocate(this->_start, this->capacity());
+            }
+
+            // Copies all the elements from x into the container.
+            // The container preserves its current allocator, which is used to allocate storage in case of reallocation.
+            // Any elements held in the container before the call are either assigned to or destroyed.
+            vector& operator= (const vector& x)
+            {
+                if (*this == x)
+                    return *this;
+                this->clear();
+                this->_alloc.deallocate(this->_start, this->capacity());
+                size_type n = x.size();
+                this->_start = this->_alloc.allocate(n);
+                this->_end = this->_start;
+                this->_end_capacity = this->_start + n;
+                pointer x_start = x._start;
+                while (n--)
+                    this->_alloc.construct(this->_end++, *x_start++);
+                return *this;
+            }
             
+            // ============================================Iterators============================================
+
+            // Returns an iterator pointing to the first element in the vector.
+            iterator begin() { return iterator(this->_start); }
+            const_iterator begin() const { return const_iterator(this->_start); }
+
+            // Returns an iterator referring to the past-the-end element in the vector container.
+            iterator end() { return iterator(this->_end); }
+            const_iterator end() const { return const_iterator(this->_end); }
+
+            // Returns a reverse iterator pointing to the last element in the vector
+            reverse_iterator rbegin() { return reverse_iterator(this->end()); }
+            const_reverse_iterator rbegin() const { return const_reverse_iterator(this->end()); }
+
+            // Returns a reverse iterator pointing to the theoretical element preceding the first element in the vector (which is considered its reverse end).
+            reverse_iterator rend() { return reverse_iterator(this->begin()); }
+            const_reverse_iterator rend() const { return const_reverse_iterator(this->begin()); }
+
     };
     
 
