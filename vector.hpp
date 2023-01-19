@@ -24,7 +24,7 @@ namespace ft
             // 	a signed integral type, identical to: iterator_traits<iterator>::difference_type
             typedef std::ptrdiff_t													difference_type;
             // an unsigned integral type that can represent any non-negative value of difference_type
-            typedef std::size_t														size_t;
+            typedef std::size_t														size_type;
             // 위 두개 타입 바꿀 수 있는지 확인하기
 
 
@@ -59,21 +59,27 @@ namespace ft
             {
                 if (&(*first) > &(*last))
                     throw std::length_error("vector");
-                size_t n = ft::difference(first, last);
+                size_type n = ft::difference(first, last);
                 this->_start = this->_alloc.allocate(n);
                 this->_end = this->_start;
                 this->_end_capacity = this->_start + n;
                 while (n--)
-                    this->_alloc.construct(this->_end, *first++);
+                    this->_alloc.construct(this->_end++, *first++);
             }
 
             // (4) copy constructor
             // Constructs a container with a copy of each of the elements in x, in the same order.
-            vector (const vector& x)
+            vector (const vector& x): _alloc(x._alloc)
             {
-
+                size_type n = x.size();
+                this->_start = this->_alloc.allocate(n);
+                this->_end = this->start;
+                this->_end_capacity = this->_start + n;
+                pointer x_start = this->_start;
+                while (n--)
+                    this->_alloc.construct(this->_end++, *x_start++);
             }
-
+            
     };
     
 
