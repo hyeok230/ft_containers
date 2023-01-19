@@ -98,6 +98,6 @@ vector<int> v(10, 3); 이코드를 실행하면 반복자를 이용한 생성자
 vector(InputIterator first, InputIterator last, const allocator_type& alloc = allocator_type(), typename ft::enable_if<!ft::is_integral<InputIterator>::value>::type* = 0)
 ```
 
-### void_t
+### reference
 ---
-
+https://cplusplus.com/reference/vector/vector/
