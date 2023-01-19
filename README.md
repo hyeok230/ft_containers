@@ -29,7 +29,7 @@ Type(int, float,,,)은 어떠한 객체에 무엇을 저장하느냐를 지정�
 표준 라이브러리의 컨테이너는 메모리 관리를 위해 사용자가 직접 allocator를 지정하지 않으면 std::allocator<T>를 기본 값으로 사용한다.
 일반적으로 동적 메모리 관리는 new와 delete 사용하는 것이 편하고 효율적이지만 컨테이너를 직접 구현하여 사용하는 경우 std::allocator<T>를 사용하면 표준 라이브러리와 유사한 인터페이스를 구현하기 용이하다.
 
-std::allocator<T> 구성과 사용 방법은 간단하다. 객체를 정의하고 원하는 크기로 allocate 한 후 사용한다. 요소가 기본자료형이 아닌 경우 std::destroy를 이용하여 각 요소의 소멸자를 호출한다. 그리고 마지막으로 deallocate를 하면 된다. (allocate -> destroy -> deallocate)
+std::allocator<T> 구성과 사용 방법은 간단하다. 객체를 정의하고 원하는 크기로 allocate 한 후 사용한다. 요소가 기본자료형이 아닌 경우 std::destroy를 이용하여 각 요소의 소멸자를 호출한다. 그리고 마지막으로 deallocate를 하면 된다. (allocate -> construct -> destroy -> deallocate)
 
 - allocate함수는 초기화되지 않은 메모리 공간을 할당하여 그 시작 주소를 반환하는 함수
 - construct 함수는 지정된 값으로 초기화된 객체를 지정된 주소에 생성하는 함수
