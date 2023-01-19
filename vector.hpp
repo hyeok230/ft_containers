@@ -125,6 +125,53 @@ namespace ft
             reverse_iterator rend() { return reverse_iterator(this->begin()); }
             const_reverse_iterator rend() const { return const_reverse_iterator(this->begin()); }
 
+            // =============================================Capacity=============================================
+
+            // Returns the number of elements in the vector.
+            size_type size() const { return (size_type(this->end() - this->begin())); }
+
+            // Returns the maximum number of elements that the vector can hold.
+            size_type max_size() const { return (this->_alloc.max_size()); }
+
+            // Resizes the container so that it contains n elements.
+            void resize (size_type n, value_type val = value_type())
+            {
+                if (n > this->max_size())
+                    throw std::out_of_range("vector::resize");
+                if (n < this->size())
+                    this->erase(this->begin() + n, this->end());
+                else 
+                    this->insert(this->end(), n - this->size(), val);
+            }
+
+            // Returns the size of the storage space currently allocated for the vector, expressed in terms of elements.
+            size_type capacity() const { return size_type(this->_end_capacity - this->_start); }
+
+            // Returns whether the vector is empty (i.e. whether its size is 0).
+            bool empty() const { return this->begin() == this->end(); }
+
+            // Requests that the vector capacity be at least enough to contain n elements.
+            void reserve (size_type n)
+            {
+                if (n > this->max_size())
+                    throw std::out_of_range("vector::reserve");
+                if (n > this->size())
+                {
+                    pointer pre_start = this->_start;
+                    pointer pre_end = this->_end;
+                    size_type pre_capacity = this->capacity();
+
+                    this->_start = this->_alloc.allocate(n);
+                    this->_end = this->_start;
+                    this->_end_capacity = this->_start + n;
+
+                    for (pointer it = pre_start; it != pre_end; it++)
+                        this->_alloc.construct(this->_end++, *it);
+                    for (pointer it = pre_start; it != pre_end; it++)
+                        this->_alloc.destroy(it);
+                    this->_alloc.deallocate(pre_start, pre_capacity);
+                }
+            }
     };
     
 
