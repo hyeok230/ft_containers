@@ -421,6 +421,8 @@ namespace ft
 				this->_alloc.destroy(--this->_end);
         }
 
+        // ===========================================Allocator===========================================
+
         // Returns a copy of the allocator object associated with the vector.
         allocator_type get_allocator() const
 		{
@@ -428,6 +430,7 @@ namespace ft
 		}
     };
 
+    // ===========================================Non-member function overloads===========================================
 
     // Performs the appropriate comparison operation between the vector containers lhs and rhs.
 
