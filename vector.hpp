@@ -4,12 +4,17 @@
 #include <memory>
 #include <stdexcept>
 #include "type_traits.hpp"
+#include "algorithm.hpp"
+#include "random_access_iterator.hpp"
+#include "reverse_iterator.hpp"
 
 namespace ft
 {
     template <typename T, typename Allocator = std::allocator<T> >
     class vector
     {
+        private:
+            typedef vector<T, Allocator> vector_type;
         public:
             typedef T                                                               value_type;
             typedef Allocator                                                       allocator_type;
