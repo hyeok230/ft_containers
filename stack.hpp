@@ -1,5 +1,5 @@
 #ifndef STACK_HPP
-#define STACk_HPP
+#define STACK_HPP
 
 #include "vector.hpp"
 
@@ -12,7 +12,7 @@ namespace ft
             // vector<T>
             typedef Container                   container_type;
             // T
-            typedef typename container_type::value_tpye  value_type;
+            typedef typename container_type::value_type  value_type;
             // size_t
             typedef typename container_type::size_type   size_type;
 

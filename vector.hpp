@@ -78,9 +78,9 @@ namespace ft
             {
                 size_type n = x.size();
                 this->_start = this->_alloc.allocate(n);
-                this->_end = this->start;
+                this->_end = this->_start;
                 this->_end_capacity = this->_start + n;
-                pointer x_start = this->_start;
+                pointer x_start = x._start;
                 while (n--)
                     this->_alloc.construct(this->_end++, *x_start++);
             }
@@ -189,19 +189,19 @@ namespace ft
             reference at (size_type n)
             {
                 if (n >= this->size())
-                    throw std::out_of_range("vector::at");
+                    throw std::out_of_range("ft::vector");
                 return (*this)[n];
             }
             const_reference at (size_type n) const
             {
                 if (n >= this->size())
-                    throw std::out_of_range("vector::at");
+                    throw std::out_of_range("ft::vector");
                 return (*this)[n];
             }
 
             // Returns a reference to the first element in the vector.
             reference front() { return *begin(); }
-            const_reference front() const { return *bgine(); }
+            const_reference front() const { return *begin(); }
 
             // Returns a reference to the last element in the vector.
             reference back() { return *(end()- 1); }
@@ -303,17 +303,17 @@ namespace ft
 
                         for (size_type i = 0; i < pos; i++)
                         {
-                            this->_alloc.construct(this->_end++, *(prev_start + i));
-				            this->_alloc.destroy(prev_start + i);
+                            this->_alloc.construct(this->_end++, *(pre_start + i));
+				            this->_alloc.destroy(pre_start + i);
                         }
                         for (size_type i = 0; i < n; i++)
                         {
                             this->_alloc.construct(this->_end++, val);
                         }
-                        for (size_type i = 0; i < prev_size - pos; i++)
+                        for (size_type i = 0; i < pre_size - pos; i++)
 			            {
-                            this->_alloc.construct(this->_end++, *(prev_start + pos + i));
-				            this->_alloc.destroy(prev_start + pos + i);
+                            this->_alloc.construct(this->_end++, *(pre_start + pos + i));
+				            this->_alloc.destroy(pre_start + pos + i);
                         }
                         this->_alloc.deallocate(pre_start, pre_capacity);
                     }
@@ -359,17 +359,17 @@ namespace ft
 
                         for (size_type i = 0; i < pos; i++)
                         {
-                            this->_alloc.construct(this->_end++, *(prev_start + i));
-				            this->_alloc.destroy(prev_start + i);
+                            this->_alloc.construct(this->_end++, *(pre_start + i));
+				            this->_alloc.destroy(pre_start + i);
                         }
                         for (size_type i = 0; i < n; i++, *first++)
                         {
                             this->_alloc.construct(this->_end++, *first);
                         }
-                        for (size_type i = 0; i < prev_size - pos; i++)
+                        for (size_type i = 0; i < pre_size - pos; i++)
 			            {
-                            this->_alloc.construct(this->_end++, *(prev_start + pos + i));
-				            this->_alloc.destroy(prev_start + pos + i);
+                            this->_alloc.construct(this->_end++, *(pre_start + pos + i));
+				            this->_alloc.destroy(pre_start + pos + i);
                         }
                         this->_alloc.deallocate(pre_start, pre_capacity);
                     }
