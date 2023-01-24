@@ -5,16 +5,13 @@
 
 namespace ft 
 {
-    template<class T, class Container = ft::vector<T> >
+    template<typename T, typename Container = ft::vector<T> >
     class stack
     {
-        private:
-            // vector<T>
-            typedef Container                   container_type;
-            // T
-            typedef typename container_type::value_type  value_type;
-            // size_t
-            typedef typename container_type::size_type   size_type;
+        public:
+            typedef T           value_type;
+            typedef Container   container_type;
+            typedef size_t      size_type;
 
             // C++11
 		    // T&
@@ -22,40 +19,40 @@ namespace ft
 		    // const T&
 		    // typedef typename container_type::const_reference	const_reference;
         protected:
-            container_type c;
+            container_type      c;
         public:
             explicit stack (const container_type& ctnr = container_type()): c(ctnr) {}
             
-            ~stack() {}
+            virtual ~stack() {}
             
             bool empty() const
             {
-                return c.empty();
+                return this->c.empty();
             }
 
             size_type size() const
             {
-                return c.size();
+                return this->c.size();
             }
 
             value_type& top()
             {
-                return c.back();
+                return this->c.back();
             }
 
             const value_type& top() const
             {
-                return c.back();
+                return this->c.back();
             }
 
             void push (const value_type& val)
             {
-                return c.push_back(val);
+                return this->c.push_back(val);
             }
 
             void pop()
             {
-                c.pop_back();
+                this->c.pop_back();
             }
 
             template <typename Tp, typename C>

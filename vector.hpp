@@ -398,7 +398,7 @@ namespace ft
                 pointer p_first = &(*first);
                 for (; &(*first) != &(*last); first++)
                     this->_alloc.destroy(&(*first));
-                for (size_type i = 0; i < this->_end - &(*last); i++)
+                for (int i = 0; i < this->_end - &(*last); i++)
                 {
                     this->_alloc.construct(p_first + i, *(&(*last) + i));
                     this->_alloc.destroy(&(*last) + i);
