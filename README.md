@@ -115,6 +115,142 @@ vector<int> v(10, 3); 이코드를 실행하면 반복자를 이용한 생성자
 vector(InputIterator first, InputIterator last, const allocator_type& alloc = allocator_type(), typename ft::enable_if<!ft::is_integral<InputIterator>::value>::type* = 0)
 ```
 
+### Map
+---
+map은 STL 내부에서는 Red-Black 트리로 구현되어 있어 탐색과 삽입/삭제 모두 O(logN)의 시간복잡도를 보장하고 있다.
+map 내부에서 정렬은 템플릿 인자로 들어오는 Compare 객체에 의해 일어나게 된다.
+Compare 객체는 맵 자체의 초기화와 함께 초기화되는데, 기본적으로 less로 초기화된다.
+
+#### map의 속성
+Associative -> 맵에 들어있는 원소는 container에 저장된 원소의 절대적 메모리 주소가 아닌 key에 의해 참조됨.
+
+Ordered -> 맵 내부의 원소는 항상 Compare 함수가 지정한 규칙에 의해 key에 따라 정렬되어있음. 삽입이나 삭제가 일어나더라도 이 순서는 유지되어야 함.
+
+Map -> 각 value는 반드시 key에 map 되어있음. 
+
+unique key -> key는 반드시 컨테이너 내부에서 유일한 값이어야 함.
+
+Allocator-aware -> 내부의 저장공간의 동적 할당과 반환을 위해 Allocator를 사용함.
+
+### Red-Black Tree 속성
+---
+1. 모든 노드는 Red 혹은 Black
+2. 루트 노드는 Black
+
+nil 노드란?
+- 존재하지 않음을 의미하는 노드
+- 자녀가 없을 때 자녀를 nil 노드로 표기
+- 값이 있는 노드와 동등하게 취급
+- RB 트리에서 leaf 노드는 nil 노드
+
+3. 모든 nil 노드는 Black
+4. Red의 자녀들은 Black or Red가 연속적으로 존재할 수 없다.
+5. 임의의 노드에서 자손 nil 노드들까지 가는 경로들의 black 수는 같다. (자기 자신은 카운트에서 제외)
+
+#### 노드 x의 Black height 
+노드 x에서 임의의 자손 nil노드까지 내려가는 경로에서의 black 수 (자기 자신은 카운트에서 제외)
+5번 속성을 만족해야 성립하는 개념
+
+RB 트리가 5번 속성을 만족하고 있고 두 자녀가 같은 색을 가질 때 부모와 두 자녀의 색을 바꿔줘도 5번 속성은 여전히 만족한다. 
+
+- RB트리는 어떻게 균형을 잡는가?
+삽입/삭제 시 주로 4번, 5번을 위반하며 이들을 해결하려고 구조를 바꾸다 보면 자연스럽게 트리의 균형이 잡히게 된다.
+
+### Red-Black Tree 삽입 overview
+--- 
+- 삽입 방법
+0. 삽입 전 RB트리의 속성 만족한 상태
+1. 삽입 방식은 일반적인 BST와 동일
+2. 삽입 후 RB트리 위반 여부 확인
+3. RB트리 속성을 위반했다면 재조정
+4. RB트리 속성을 다시 만족
+
+삽입하는 노드는 항상 red이다.
+
+red 삽입 후 2번 속성을 위반 했을 때 -> 루트 노드를 Black으로 바꿔준다.
+
+- 왜 새로 삽입하는 노드는 Red인가?
+삽입 후에도 5번 속성을 만족하기 위해서이다.
+
+- case 1.
+삽입된 Red 노드의 부모도 Red & 삼촌(=부모의 형제)도 Red라면 => 부모와 삼촌을 black으로 바꾸고 할아버지를 Red로 바꾼뒤 할아버지에서 다시 확인을 시작한다.
+
+- case 2.
+삽입된 Red 노드가 부모의 오른쪽* 자녀 & 부모도 Red고 할아버지의 왼쪽* 자녀 & 삼촌(=부모의 형제)은 black이라면 => 부모를 기준으로 왼쪽*으로 회전한 뒤 case3 방식으로 해결
+(오른쪽과 왼쪽을 모두 바꾸면 동일하게 성립한다.)
+- case 3. 
+삽입된 Red 노드가 부모의 왼쪽* 자녀 & 부모도 Red고 할아버지의 왼쪽* 자녀 & 삼촌(=부모의 형제)은 black이라면 => 부모와 할아버지의 색을 바꾼 후 할아버지 기준으로 오른쪽*으로 회전한다.
+(오른쪽과 왼쪽을 모두 바꾸면 동일하게 성립한다.)
+
+### Red-Black Tree 삭제 overview
+--- 
+0. 삭제 전 RB 트리 속성 만족한 상태
+1. 삭제 방식은 일반적인 BST와 동일
+2. 삭제 후 RB 트리 속성 위반 여부 확인
+3. RB 트리 속성을 위반했다면 재조정
+4. RB 트리 속성을 다시 만족
+
+- 속성 위반 여부 확인
+RB트리에서 노드를 삭제할 때 어떤 색이 삭제되는지가 속성 위반 여부를 확인할 때 매우 중요
+
+삭제하려는 노드의 자녀가 없거나 하나라면 삭제되는 색 = 삭제되는 노드의 색 (여기에서 nil은 자녀가 아님)
+삭제하려는 노드의 자녀가 둘이라면 삭제되는 색 = 삭제되는 노드의 successor의 색
+
+* 삭제되는 색이 Red라면 어떠한 속성도 위반하지 않는다.
+* 삭제되는 색이 Black이라면 2번, 4번, 5번 속성을 위반할 수 있다.
+
+- 2번 위반 해결하기
+: 루트노드를 Black으로 바꾸면 된다.
+
+- 5번 위반 해결하기
+: 5번 속성을 다시 만족시키기 위해 삭제된 색의 위치를 대체한 노드에 extra black을 부여한다.
+extra black은 black 수를 카운트 할 때 하나의 black으로 카운트 된다.
+doubly black : extra black이 부여된 black 노드 (blakc 두개로 카운트)
+red-and-black : extra black이 부여된 red 노드 (black 하나로 카운트)
+
+extra black 부여 후 red-and-black 해결하기
+: red-and-black을 black으로 바꾸면 해결
+
+extra black 부여 후 doubly black 해결하기
+: 총 4가지의 case로 분류된다. 네 가지 case로 분류할 때의 기준은 doubly black의 형제의 색과 그 형제의 자녀들의 색이다.
+
+1. doubly black의 형제가 red 일때
+: doubly black의 형제를 black으로 만든 후 case 2, 3, 4 중에 하나로 해결
+(부모와 형제의 색을 바꾸고 부모를 기준으로 왼쪽으로 회전한 뒤 doubly black을 기준으로 case 2, 3, 4중에 하나로 해결)
+
+2. doubly black의 형제가 black & 그 형제의 두 자녀 모두 black일 때
+: doubly black과 그 형제의 black을 모아서 부모에게 전달해서 부모가 extra black을 해결하도록 위임한다.
+
+3. doubly black의 오른쪽 형제가 black & 그 형제의 왼쪽 자녀가 red & 그 형제의 오른쪽 자녀는 black일 때
+: doubly black의 형제의 오른쪽 자녀가 red가 되게 만들어서 이후엔 case.4를 적용하여 해결
+
+4. doubly black의 오른쪽 형제가 black & 그 형제의 오른쪽 자녀가 red일 때
+: 형제의 오른쪽 자녀의 red를 doubly black 위로 옮기고 옮긴 red로 extra black을 전달해서 red-and-black으로 만들면 red-and-black을 black으로 바꿔서 해결
+(오른쪽 형제는 부모의 색으로, 오른쪽 형제의 오른쪽 자녀와 부모를 black으로 바꾼 후에 부모를 기준으로 왼쪽으로 회전하면 해결) * 오른쪽을 왼쪽으로 바꿔도 성립
+
+### RB 트리의 시간복잡도
+---
+||avg|worst|
+|---|---|---|
+|insert| O(logN) | O(logN) |
+|delete| O(logN) | O(logN) |
+|search| O(logN) | O(logN) |
+
+BST의 경우 worst일 때 O(N)
+
+### AVL Tree VS RB Tree
+||Red-Black 트리|AVL 트리|
+|:---:|:---:|:---:|
+|bst| yes | yes |
+|삽입/삭제/검색 시간복잡도| worst = O(logN) | worst = O(logN) |
+|삽입/삭제 성능| AVL 트리에 비해 빠르다 | Red-Black 트리에 비해 느리다 (규칙 엄격) |
+|검색 성능| AVL 트리에 비해 느리다 | Red-Black 트리에 비해 빠르다 |
+|균형 잡는 방식| red-black 트리 속성 만족 | balance factor {-1, 0 ,1} 되도록 |
+|응용 사례| linux kernel 내부, Java TreeMap, c++ std::map | dictionary, 한번 만들어 놓으면 삽입/삭제가 거의 없이 검색이 대부분인 상황에 사용 |
+
+
 ### reference
 ---
 https://cplusplus.com/reference/vector/vector/
+https://www.youtube.com/watch?v=2MdsebfJOyM&t=1s
+https://foufou.tistory.com/entry/ftcontainers-5-Red-Black-Tree-%EC%9D%B4%ED%95%B4%ED%95%98%EA%B8%B0
