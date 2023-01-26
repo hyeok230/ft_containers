@@ -91,6 +91,7 @@ namespace ft
             {
                 this->clear();
                 this->_alloc.deallocate(this->_start, this->capacity());
+                this->_end_capacity = this->_start;
             }
 
             // Copies all the elements from x into the container.
@@ -291,7 +292,12 @@ namespace ft
                     }
                     else 
                     {
-                        size_type next_capacity = this->size() + n;
+                        // size_type next_capacity = this->size() + n;
+                        size_type next_capacity;
+                        if (n + this->size() > this->capacity() * 2)
+                            next_capacity =  this->size() + n;
+                        else
+                            next_capacity = this->capacity() * 2;
 
                         pointer pre_start = this->_start;
                         size_type pre_size = this->size();
@@ -347,7 +353,12 @@ namespace ft
                     }
                     else
                     {
-                        size_type next_capacity = this->size() + n;
+                        // size_type next_capacity = this->size() + n;
+                        size_type next_capacity;
+                        if (n + this->size() > this->capacity() * 2)
+                            next_capacity =  this->size() + n;
+                        else
+                            next_capacity = this->capacity() * 2;
 
                         pointer pre_start = this->_start;
                         size_type pre_size = this->size();
@@ -356,21 +367,29 @@ namespace ft
                         this->_start = this->_alloc.allocate(next_capacity);
                         this->_end = this->_start;
                         this->_end_capacity = this->_start + next_capacity;
-
-                        for (size_type i = 0; i < pos; i++)
+                        try
                         {
-                            this->_alloc.construct(this->_end++, *(pre_start + i));
-				            this->_alloc.destroy(pre_start + i);
+                            for (size_type i = 0; i < pos; i++)
+                            {
+                                this->_alloc.construct(this->_end++, *(pre_start + i));
+                                this->_alloc.destroy(pre_start + i);
+                            }
+                            for (size_type i = 0; i < n; i++, *first++)
+                            {
+                                this->_alloc.construct(this->_end++, *first);
+                            }
+                            for (size_type i = 0; i < pre_size - pos; i++)
+                            {
+                                this->_alloc.construct(this->_end++, *(pre_start + pos + i));
+                                this->_alloc.destroy(pre_start + pos + i);
+                            }
                         }
-                        for (size_type i = 0; i < n; i++, *first++)
+                        catch(...)
                         {
-                            this->_alloc.construct(this->_end++, *first);
-                        }
-                        for (size_type i = 0; i < pre_size - pos; i++)
-			            {
-                            this->_alloc.construct(this->_end++, *(pre_start + pos + i));
-				            this->_alloc.destroy(pre_start + pos + i);
-                        }
+                            this->clear();
+                            this->_end_capacity = this->_start;
+                            throw;
+                        }         
                         this->_alloc.deallocate(pre_start, pre_capacity);
                     }
                 }
