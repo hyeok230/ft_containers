@@ -30,7 +30,7 @@ namespace ft
             typedef std::ptrdiff_t													difference_type;
             // an unsigned integral type that can represent any non-negative value of difference_type
             typedef std::size_t														size_type;
-            // 위 두개 타입 바꿀 수 있는지 확인하기
+
 
 
         protected:
