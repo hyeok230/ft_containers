@@ -248,6 +248,10 @@ BST의 경우 worst일 때 O(N)
 |균형 잡는 방식| red-black 트리 속성 만족 | balance factor {-1, 0 ,1} 되도록 |
 |응용 사례| linux kernel 내부, Java TreeMap, c++ std::map | dictionary, 한번 만들어 놓으면 삽입/삭제가 거의 없이 검색이 대부분인 상황에 사용 |
 
+### explicit
+---
+생성자에 expilict 키워드를 사용한다면 컴파일러가 알아서 형변환 하는것을 막을 수 있다.
+이처럼 explicit 키워드 없이 사용한다면 사용자가 원치 않은 형변환이 일어나는 등 예기치 않은 버그가 발생할 수 있기 때문에 사용해 주는 것이 좋다.
 
 ### reference
 ---
