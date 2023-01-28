@@ -28,10 +28,10 @@ namespace ft
 
         pair& operator= (const pair& pr)
         {
-            if (this == &other)
+            if (this == &pr)
                 return *this;
-            first = other.first;
-            second = other.second;
+            first = pr.first;
+            second = pr.second;
             return *this;
         }
     };
