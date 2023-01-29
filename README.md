@@ -253,6 +253,14 @@ BST의 경우 worst일 때 O(N)
 생성자에 expilict 키워드를 사용한다면 컴파일러가 알아서 형변환 하는것을 막을 수 있다.
 이처럼 explicit 키워드 없이 사용한다면 사용자가 원치 않은 형변환이 일어나는 등 예기치 않은 버그가 발생할 수 있기 때문에 사용해 주는 것이 좋다.
 
+### Allocator rebind
+---
+map이나 set안에서 value_type은 타입 데이터를 포함한 노드 구조체를 저장하는 컨테이너이다. 따라서 우리가 allocator에 넘긴 템플릿 파라미터는 T, 예를들어 int 타입을 넘겨 rebind를 사용하지 않고 이것만으로 allocate 함수를 호출한다면, 4바이트만 할당이 될 것이다. 이렇듯 해당 템플릿 매개변수 T 타입의 컨테이너 allocator는 T 타입이 아닌 다른 타입에 대한 allocate가 필요해 진다. 이와 같은 요구 사항을 충족하기 위해, STL allocator는 반드시 rebind 중첩 구조체 템플릿을 가져야 한다. 
+```
+typedef	ft::rb_tree_node<T>											node_type;		
+typedef typename allocator_type::template rebind<node_type>::other	node_alloc_type;
+```
+이렇게 T타입이 아닌, 다른 타입으로도의 할당( node )이 필요해지게 되는데 이와 같은 요구사항을 충족하기 위해 rebind 를 가져야 할 것을 권고 하고 있다. ( 이는 C++17에서 사용중지 권고가 내려졌고, C++20에서 삭제 예정이다. )
 ### reference
 ---
 https://cplusplus.com/reference/vector/vector/
