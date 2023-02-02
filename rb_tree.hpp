@@ -110,7 +110,7 @@ namespace ft
             typedef ft::bidirectional_iterator_tag      iterator_category;
             typedef std::ptrdiff_t                      difference_type;
             typedef T                                   value_type;
-            typedef T*                                  Pointer;
+            typedef T*                                  pointer;
             typedef T&                                  reference;
         
         private:
@@ -132,11 +132,11 @@ namespace ft
                 return *this;
             }
             reference operator*() const { return _node->_value; }
-            Pointer operator->() const { return &_node->_value; }
+            pointer operator->() const { return &_node->_value; }
             rb_tree_iterator& operator++()
             {
                 if (_node->_right != NULL)
-                    _node = tree_min<valu_type>(_node->_right);
+                    _node = tree_min<value_type>(_node->_right);
                 else
                 {
                     while (!tree_is_left_child<value_type>(_node))
@@ -286,7 +286,7 @@ namespace ft
             typedef T                                                           value_type;
             typedef Compare                                                     value_compare;
             typedef Alloc                                                       allocator_type;
-            typedef typename allocator_type::template rebind<node_type>::oter   node_alloc_type;
+            typedef typename allocator_type::template rebind<node_type>::other  node_alloc_type;
             typedef typename allocator_type::pointer							pointer;
 		    typedef typename allocator_type::const_pointer 						const_pointer;
 		    typedef typename allocator_type::reference							reference;
@@ -310,9 +310,9 @@ namespace ft
 
         public:
             rb_tree(const value_compare &comp, const allocator_type &alloc)
-                : _begin(&_parent), _compare(comp), _value_alloc(alloc), _node_alloc(alloc) {}
+                : _size(), _parent(), _begin(&_parent), _compare(comp), _value_alloc(alloc), _node_alloc(alloc) {}
             rb_tree(const rb_tree &obj)
-                : _begin(&_parent), _compare(obj.comp), _value_alloc(obj._val_alloc), _node_alloc(obj._node_alloc) 
+                : _size(), _parent(), _begin(&_parent), _compare(obj._compare), _value_alloc(obj._value_alloc), _node_alloc(obj._node_alloc) 
             {
                 if (obj.root() != NULL)
                 {
@@ -386,7 +386,19 @@ namespace ft
 
             void erase(iterator position)
             {
-                // 아직 이해 안감
+                node_ptr node = position.base();
+                if (node == this->_begin)
+                {
+                    position++;
+                    this->_begin = position.base();
+                }
+                this->erase(this->root(), node);
+                if (this->root() != NULL)
+                {
+                    this->root()->_parent = this->end_node();
+                    this->root()->_color = black;
+                }
+                this->destroy_node(node);
             }
 
             size_type erase(const value_type& val)
@@ -549,9 +561,9 @@ namespace ft
     
         private:
             node_ptr& root() { return this->_parent._left; }
-            const_node_ptr  &root() const { return const_cast<const_node_ptr&>(this->_parent._left); }
+            const_node_ptr& root() const { return const_cast<const_node_ptr&>(this->_parent._left); }
             node_ptr end_node() { return &(this->_parent);}
-            const_node_ptr end_node() const { return const_cast<const_node_ptr>(&(this->_parent_)); }
+            const_node_ptr end_node() const { return const_cast<const_node_ptr>(&(this->_parent)); }
 
             node_ptr insert(node_ptr node, node_ptr new_node, iterator& pos)
             {
@@ -574,8 +586,6 @@ namespace ft
                     pos = node;
                 return node;
             }
-
-            // erase
 
             node_ptr make_node(const value_type& val)
             {
@@ -632,16 +642,9 @@ namespace ft
             color get_node_color(node_ptr node)
             {
                 if (node == NULL)
-                    return (black)
+                    return (black);
                 else
                     return (node->_color);
-            }
-
-            void insert_sort(node_ptr node)
-            {
-                
-
-
             }
 
             void rotate_left(node_ptr node)
@@ -672,6 +675,188 @@ namespace ft
                     node->_parent->_right = left_node;
                 left_node->_right = node;
                 node->_parent = left_node;
+            }
+
+            void insert_sort(node_ptr node)
+            {
+                while (node != this->root() && get_node_color(node->_parent) == red)
+                {
+                    node_ptr uncle = this->get_sibling(node->_parent);
+                    if (this->get_node_color(uncle) == red)
+                    {
+                        uncle->change_color();
+                        node = node->_parent;
+                        node->change_color();
+                        node = node->_parent;
+                        node->change_color();
+                    }
+                    else if (tree_is_left_child<value_type>(node->_parent))
+                    {
+                        if (!tree_is_left_child<value_type>(node))
+                        {
+                            node = node->_parent;
+                            this->rotate_left(node);
+                        }
+                        node = node->_parent;
+                        node->change_color();
+                        node = node->_parent;
+                        node->change_color();
+                        this->rotate_right(node);
+                        break ;
+                    }
+                    else
+                    {
+                        if (tree_is_left_child<value_type>(node))
+                        {
+                            node = node->_parent;
+                            this->rotate_right(node);
+                        }
+                        node = node->_parent;
+                        node->change_color();
+                        node = node->_parent;
+                        node->change_color();
+                        this->rotate_left(node);
+                        break ;
+                    }
+                }
+            }
+
+            node_ptr replace_node(node_ptr node) const
+            {
+                if (node->_left == NULL || node->_right == NULL) //node의 자식이 0개 또는 1개일때
+                    return node;
+                else  
+                    return tree_min<value_type>(node->_right);     //node의 자식이 2개일 때
+            }
+
+            void erase(node_ptr root, node_ptr node)
+            {
+                node_ptr rep_node = replace_node(node);
+                node_ptr rep_child = rep_node->_left == NULL ? rep_node->_right : rep_node->_left;   //rep_node의 자식(자식은 0개 혹은 1개일 수 밖에 없기 떄문)
+                node_ptr sibling = NULL;
+
+                if (rep_child != NULL)                          //rep_node의 자리를 대체해야 하기 때문에 rep_child는 rep_node의 부모를 가리키게 한다. (자식이 없을 경우 x)
+                    rep_child->_parent = rep_node->_parent;
+                if (tree_is_left_child<value_type>(rep_node))   //rep_node가 parent의 왼쪽일때
+                {
+                    rep_node->_parent->_left = rep_child;     //rep_node의 부모도 rep_child를 가리키게 한다
+                    if (rep_node == root)                       //rep_node가 root일 떄 예외처리
+                        root = rep_child;
+                    else
+                        sibling = rep_node->_parent->_right;
+                }
+                else                                            //rep_node가 parent의 오른쪽일때
+                {
+                    rep_node->_parent->_right = rep_child;
+                    sibling = rep_node->_parent->_left;
+                }
+                color rep_color = rep_node->_color;
+                if (rep_node != node)                           //node의 자식이 2개일때 (replace_node()함수의 else문 일때만) rep_node의 요소 저장
+                {
+                    rep_node->_parent = node->_parent;
+                    if (tree_is_left_child<value_type>(node))   //node->parent에서 rep_node로 연결
+                        rep_node->_parent->_left = rep_node;
+                    else
+                        rep_node->_parent->_right = rep_node;
+                    rep_node->_left = node->_left;            //node의 자식들과 rep_node를 연결한다.
+                    rep_node->_left->_parent = rep_node;
+                    rep_node->_right = node->_right;
+                    if (rep_node->_right != NULL)
+                        rep_node->_right->_parent = rep_node;
+                    rep_node->_color = node->_color;          //node에 맞게 rep_node 색 변경
+                    if (node == root)
+                        root = rep_node;
+                }
+                if (rep_color == black && root != NULL) //black + root, red + root, red + non-root 모두 해당되지 않음 (규칙 5에 어긋나지 않음)
+                {
+                    if (rep_child != NULL)          //자식을 black으로 바꿔서 black level 유지. (규칙 5)
+                        rep_child->_color = black;
+                    else
+                        erase_sort(root, rep_child, sibling);  //자식이 없을 때는 추가 조치
+                }
+            }
+
+            void erase_sort(node_ptr root, node_ptr node, node_ptr sibling)
+            {
+                while (true)
+                {
+                    if (!tree_is_left_child<value_type>(sibling))
+                    {
+                        if (get_node_color(sibling) == red)
+                        {
+                            sibling->change_color();
+                            sibling->_parent->change_color();
+                            rotate_left(sibling->_parent);
+                            if (root == sibling->_left)
+                                root = sibling;
+                            sibling = sibling->_left->_right;
+                        }
+                        if (get_node_color(sibling->_left) == black && get_node_color(sibling->_right) == black)
+                        {
+                            sibling->change_color();
+                            node = sibling->_parent;
+                            if (node == root || get_node_color(node) == red)
+                            {
+                                node->_color = black;
+                                break;
+                            }
+                            sibling = get_sibling(node);
+                        }
+                        else
+                        {
+                            if (get_node_color(sibling->_right) == black)
+                            {
+                                sibling->_left->change_color();
+                                sibling->change_color();
+                                rotate_right(sibling);
+                                sibling = sibling->_parent;
+                            }
+                            sibling->_color = sibling->_parent->_color;
+                            sibling->_parent->_color = black;
+                            sibling->_right->_color = black;
+                            rotate_left(sibling->_parent);
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        if (get_node_color(sibling) == red)
+                        {
+                            sibling->change_color();
+                            sibling->_parent->change_color();
+                            rotate_right(sibling->_parent);
+                            if (root == sibling->_right)
+                                root = sibling;
+                            sibling = sibling->_right->_left;
+                        }
+                        if (get_node_color(sibling->_left) == black && get_node_color(sibling->_right) == black)
+                        {
+                            sibling->change_color();
+                            node = sibling->_parent;
+                            if (node == root || get_node_color(node) == red)
+                            {
+                                node->_color = black;
+                                break;
+                            }
+                            sibling = get_sibling(node);
+                        }
+                        else
+                        {
+                            if (get_node_color(sibling->_left) == black)
+                            {
+                                sibling->_right->change_color();
+                                sibling->change_color();
+                                rotate_left(sibling);
+                                sibling = sibling->_parent;
+                            }
+                            sibling->_color = sibling->_parent->_color;
+                            sibling->_parent->_color = black;
+                            sibling->_left->_color = black;
+                            rotate_right(sibling->_parent);
+                            break;
+                        }
+                    }
+                }
             }
     };
     template<typename T, typename Compare, typename Alloc>
