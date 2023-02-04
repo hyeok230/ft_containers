@@ -266,3 +266,4 @@ typedef typename allocator_type::template rebind<node_type>::other	node_alloc_ty
 https://cplusplus.com/reference/vector/vector/
 https://www.youtube.com/watch?v=2MdsebfJOyM&t=1s
 https://foufou.tistory.com/entry/ftcontainers-5-Red-Black-Tree-%EC%9D%B4%ED%95%B4%ED%95%98%EA%B8%B0
+http://soen.kr/lecture/ccpp/cpp4/39-2-6.htm
